@@ -1,0 +1,39 @@
+version: "1"
+services:
+  postgres:
+    container_name: db
+    image: postgres
+    volumes:
+      - ./db_config/database_init:/docker-entrypoint-initdb.d/
+      - db-data:/var/lib/postgresql/data
+      - ./db_config/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      - ./db_config/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456789
+      - POSTGRES_DB=FIIPractic
+    ports:
+        - "5431:5432"
+    restart: unless-stopped
+
+  spring_boot:
+    container_name: backend
+    image: fii-practic
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      MYPOSTGRES_HOST: postgres
+      MYPOSTGRES_PORT: 5432
+      MYPOSTGRES_DB: FIIPractic
+      MYPOSTGRES_USER: postgres
+      MYPOSTGRES_PASSWORD: 123456789
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+    db-data:
+
+
+
